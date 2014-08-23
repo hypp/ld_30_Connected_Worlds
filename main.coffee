@@ -349,11 +349,8 @@ init = ->
 
 		canvas = document.getElementById CANVAS_NAME
 		canvas.addEventListener "mousemove", mouse_move
-		canvas = document.getElementById CANVAS_NAME
 		canvas.addEventListener "mousedown", mouse_down
-		canvas = document.getElementById CANVAS_NAME
 		canvas.addEventListener "mouseup", mouse_up
-		canvas = document.getElementById CANVAS_NAME
 		canvas.addEventListener "mouseout", mouse_out
 
 
