@@ -1,11 +1,16 @@
 
 CANVAS_WIDTH = 600
 CANVAS_PLAY_WIDTH = 400
-CANVAS_HEIGHT = 600
+CANVAS_HEIGHT = 400
 CANVAS_HALF_WIDTH = CANVAS_WIDTH/2
 CANVAS_HALF_HEIGHT= CANVAS_HEIGHT/2
 
 CANVAS_NAME = 'game_canvas'
+
+REGEX_TYPE_DIGITS = 0
+REGEX_TYPE_LETTERS = 1
+REGEX_TYPE_BACKSLASH = 2
+REGEX_TYPE_LETTERS_DIGITS = 3
 
 current_block = null
 
@@ -25,7 +30,7 @@ add_block = (world) ->
 
 	rotation = (0.5 - Math.random()) * 0.002
 	block.state.angular.vel = rotation
-	block.regex_type = "digits"
+	block.regex_type = REGEX_TYPE_DIGITS
 
 	world.add block
 
@@ -64,7 +69,7 @@ generate_regex_menu = (world) ->
 			x: CANVAS_WIDTH - border - width/2
 			y: (spacing + height) * 0 + spacing + height/2
 			view: regex_1_img
-	regex_1.regex = "digits"
+	regex_1.regex = REGEX_TYPE_DIGITS
 	world.add regex_1
 
 	regex_2_img = new Image()
@@ -77,7 +82,7 @@ generate_regex_menu = (world) ->
 			x: CANVAS_WIDTH - border - width/2
 			y: (spacing + height) * 1 + spacing + height/2
 			view: regex_2_img
-	regex_2.regex = "letters"
+	regex_2.regex = REGEX_TYPE_LETTERS
 	world.add regex_2
 
 	regex_3_img = new Image()
@@ -90,7 +95,7 @@ generate_regex_menu = (world) ->
 			x: CANVAS_WIDTH - border - width/2
 			y: (spacing + height) * 2 + spacing + height/2
 			view: regex_3_img
-	regex_3.regex = "backslash"
+	regex_3.regex = REGEX_TYPE_BACKSLASH
 	world.add regex_3
 
 	width = 160
@@ -104,7 +109,7 @@ generate_regex_menu = (world) ->
 			x: CANVAS_WIDTH - border - width/2
 			y: (spacing + height) * 3 + spacing + height/2
 			view: regex_4_img
-	regex_4.regex = "letters_digits"
+	regex_4.regex = REGEX_TYPE_LETTERS_DIGITS
 	world.add regex_4
 
 window.onload = -> 
