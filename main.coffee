@@ -17,7 +17,7 @@ padding = 8
 font_canvas = document.createElement 'canvas'
 font_context = font_canvas.getContext '2d'
 
-string_to_image = (das_text) ->
+string_to_image = (das_text, color) ->
 	font_context.font = 'bold 18pt Courier New'
 	font_context.textAlign = 'left'
 	font_context.fillStyle = 'black'
@@ -28,7 +28,7 @@ string_to_image = (das_text) ->
 	font_context.rect 0,0,font_canvas.width,font_canvas.height
 	font_context.stroke()
 
-	font_context.fillStyle = 'red'
+	font_context.fillStyle = color
 	font_context.font = 'bold 18pt Courier New'
 	font_context.textAlign = 'left'
 	font_context.fillText das_text, padding/2, font_canvas.height-padding/2-4
@@ -86,10 +86,10 @@ class Digits extends Block
 			for i in [0..num_digits] by 1
 				val = Math.floor Math.random() * 10
 				@string += val.toString()
-			@img = string_to_image @string
+			@img = string_to_image @string, 'red'
 		else
 			@string = ''
-			@img = string_to_image '     '
+			@img = string_to_image '     ', 'red'
 
 # Matches a-z, A-Z, 0-9, including the _ 
 class Letters extends Block
@@ -102,13 +102,28 @@ class Letters extends Block
 
 			val = Math.floor Math.random() * letters.length
 			@string += letters.charAt val
-		@img = string_to_image @string
+		@img = string_to_image @string, 'red'
+
+# Matches a-z, A-Z, 0-9, including the _ and contains a .
+class LettersDot extends Block
+	constructor: ->
+		@type = REGEX_TYPE_LETTERS
+		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+		num_digits = 1 + Math.floor Math.random() * 9
+		@string = ''
+		for i in [0..num_digits] by 1
+
+			if i == Math.floor num_digits / 2
+				@string += '.'
+			val = Math.floor Math.random() * letters.length
+			@string += letters.charAt val
+		@img = string_to_image @string, 'red'
 
 class Backslash extends Block
 	constructor: ->
 		@type = REGEX_TYPE_BACKSLASH
 		@string = '\\'
-		@img = string_to_image @string
+		@img = string_to_image @string, 'red'
 
 # Matches 1-3 of a-z, A-Z, 0-9, including the _
 # followed by 1-3 of 0-9 
@@ -127,14 +142,14 @@ class LettersDigits extends Block
 		for i in [0..num_digits] by 1
 			val = Math.floor Math.random() * 10
 			@string += val.toString()
-		@img = string_to_image @string
+		@img = string_to_image @string, 'red'
 
 
 class GameRegex
 	constructor: (regex) ->
 		@regex_str = regex
 		@regex = new RegExp(@regex_str)
-		@img = string_to_image @regex_str
+		@img = string_to_image @regex_str, 'green'
 
 	match: (string) ->
 		result = @regex.test string
@@ -144,9 +159,13 @@ class GameRegex
 	score: ->
 		return @regex_str.length * 2
 
+num_blocks = 0
+
 add_block = (world) ->
 
-	type = Math.floor Math.random() * 4
+	num_blocks += 1
+
+	type = Math.floor Math.random() * 5
 	switch type
 		when 0
 			regex = new Backslash()
@@ -154,6 +173,8 @@ add_block = (world) ->
 			regex = new Digits()
 		when 2
 			regex = new Letters()
+		when 3
+			regex = new LettersDot()
 		else
 			regex = new LettersDigits()
 
@@ -175,81 +196,37 @@ mouse_2_canvas_coords = (canvas, event) ->
 
 	return [cx,cy]
 
+
+all_regexes = ['^\\d*$','^\\w+$','^\\\\$','^\\w{1,3}\\d{1,3}$','^Mathias$','zaS$','^pow','aa','^...$','\\.']
+
 generate_regex_menu = (world) ->
 
 	spacing = 3
 	border = 3
 	current_y = 0
 
-	regex_1_obj = new GameRegex '^\\d*$'
-	height = regex_1_obj.img.height
-	width = regex_1_obj.img.width
+	for regex_str in all_regexes
+		regex_obj= new GameRegex regex_str
+		height = regex_obj.img.height
+		width = regex_obj.img.width
 
-	regex_1 = Physics.body 'rectangle', 
-			width: width
-			height: height
-			treatment: 'static'
-			x: CANVAS_WIDTH - border - width/2
-			y: current_y + spacing + height/2
-			view: regex_1_obj.img
-	regex_1.regex = regex_1_obj
-	world.add regex_1
+		regex = Physics.body 'rectangle', 
+				width: width
+				height: height
+				treatment: 'static'
+				x: CANVAS_WIDTH - border - width/2
+				y: current_y + spacing + height/2
+				view: regex_obj.img
+		regex.regex = regex_obj
+		world.add regex
 
-	# Move to next y
-	current_y += spacing + height
+		# Move to next y
+		current_y += spacing + height
 
-	regex_2_obj = new GameRegex '^\\w+$'
-	height = regex_2_obj.img.height
-	width = regex_2_obj.img.width
 
-	regex_2 = Physics.body 'rectangle', 
-			width: width
-			height: height
-			treatment: 'static'
-			x: CANVAS_WIDTH - border - width/2
-			y: current_y + spacing + height/2
-			view: regex_2_obj.img
-	regex_2.regex = regex_2_obj
-	world.add regex_2
+domready -> init()
 
-	# Move to next y
-	current_y += spacing + height
-
-	regex_3_obj = new GameRegex '^\\\\$'
-	height = regex_3_obj.img.height
-	width = regex_3_obj.img.width
-
-	regex_3 = Physics.body 'rectangle', 
-			width: width
-			height: height
-			treatment: 'static'
-			x: CANVAS_WIDTH - border - width/2
-			y: current_y + spacing + height/2
-			view: regex_3_obj.img
-	regex_3.regex = regex_3_obj
-	world.add regex_3
-
-	# Move to next y
-	current_y += spacing + height
-
-	regex_4_obj = new GameRegex '^\\w{1,3}\\d{1,3}$'
-	height = regex_4_obj.img.height
-	width = regex_4_obj.img.width
-
-	regex_4 = Physics.body 'rectangle', 
-			width: width
-			height: height
-			treatment: 'static'
-			x: CANVAS_WIDTH - border - width/2
-			y: current_y + spacing + height/2
-			view: regex_4_obj.img
-	regex_4.regex = regex_4_obj
-	world.add regex_4
-
-	# Move to next y
-	current_y += spacing + height
-
-window.onload = -> 
+init = -> 
 	player = new Player()
 
 	Physics (world) ->
@@ -258,7 +235,7 @@ window.onload = ->
 		    el: CANVAS_NAME
 		    width: CANVAS_WIDTH
 		    height: CANVAS_HEIGHT
-		    # debug: true
+		    #debug: true
 		world.add renderer
 
 		generate_regex_menu world
@@ -286,7 +263,7 @@ window.onload = ->
 
 		world.on 'step', ->
 			counter += 1
-			if counter > 50*5
+			if counter > 50*2
 				counter = 0
 				add_block(world)
 
@@ -299,6 +276,19 @@ window.onload = ->
 					x: mousepos_x
 					y: mousepos_y,									
 				renderer.drawLine tracking.state.pos,dest_pos,styles
+
+			if num_blocks > 60
+				# Game over
+				world.pause()
+				canvas = document.getElementById CANVAS_NAME
+				font_context = canvas.getContext '2d'
+				font_context.fillStyle = "black"
+				font_context.font = 'bold 60pt Courier New'
+				font_context.textAlign = 'center'
+				font_context.fillText "Game Over", canvas.width / 2, canvas.height / 2				
+				font_context.font = 'bold 48pt Courier New'
+				font_context.fillText player.score.toString() + ' points', canvas.width / 2, canvas.height / 2 + 60				
+
 
 		Physics.util.ticker.on ( time, dt ) ->
 			world.step(time)
@@ -339,11 +329,13 @@ window.onload = ->
 						# Got a match, increase player score and remove block
 						player.add_score hit.regex.score() * tracking.object.score()
 						world.remove(tracking)
+						num_blocks -= 1
 						console.log 'from msg to regex', tracking.object.string
 					when hit.object? and tracking.regex? and tracking.regex.match(hit.object.string)
 						# Got a match, increase player score and remove block
 						player.add_score hit.object.score() * tracking.regex.score()
 						world.remove(hit)
+						num_blocks -= 1
 						console.log 'from regex to hit'
 					else
 						# No match, decrease player score!
