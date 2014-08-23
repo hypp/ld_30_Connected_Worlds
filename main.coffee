@@ -29,7 +29,10 @@ string_to_image = (das_text, color) ->
 	font_context.fillText das_text, padding/2, font_canvas.height-padding/2-4
 
 	image = new Image()
-	image.src = font_canvas.toDataURL('image/url')
+	# I have to set width and height or it won't work in Safari and Firefox
+	image.width = font_canvas.width
+	image.height = font_canvas.height
+	image.src = font_canvas.toDataURL()
 	return image
 
 class Player
