@@ -143,9 +143,12 @@ window.onload = ->
 
 		world.add Physics.behavior 'sweep-prune'
 
+		counter = 0
+
 		world.on 'step', ->
-			y = current_block.state.pos.y
-			if y > CANVAS_HALF_HEIGHT
+			counter += 1
+			if counter > 50*5
+				counter = 0
 				add_block(world)
 
 			world.render()
@@ -176,14 +179,12 @@ window.onload = ->
 
 			if hit
 				tracking = hit
-				console.log 'down:', hit
 
 		mouse_move = (event) ->
 			if not tracking
 				return
 			[cx,cy] = mouse_2_canvas_coords canvas, event
 			[mousepos_x, mousepos_y] = [cx, cy]
-			console.log 'move:', cx, cy
 
 		mouse_up = (event) ->
 			[cx,cy] = mouse_2_canvas_coords canvas, event
@@ -192,8 +193,18 @@ window.onload = ->
 			hit = world.findOne
 				$at: pos
 
-			if hit
+			if hit and hit != tracking
 				console.log 'up:', hit
+				if hit.regex? and hit.regex == tracking.regex_type
+					# Got a match, increase player score and remove block
+					world.remove(tracking)
+					console.log 'from msg to regex'
+				else if tracking.regex? and tracking.regex == hit.regex_type
+					# Got a match, increase player score and remove block
+					world.remove(hit)
+					console.log 'from regex to hit'
+				else
+					# No match, decrease player score!
 
 			tracking = false
 
