@@ -12,31 +12,122 @@ REGEX_TYPE_LETTERS = 1
 REGEX_TYPE_BACKSLASH = 2
 REGEX_TYPE_LETTERS_DIGITS = 3
 
-digit_image = new Image()
-digit_image.src = "digits.png"
+padding = 8
+font_canvas = document.createElement 'canvas'
+font_context = font_canvas.getContext '2d'
+
+class Block
+	constructor: ->
+
+	string_to_image: (das_text) ->
+		font_context.font = 'bold 18pt Courier New'
+		font_context.textAlign = 'left'
+		font_context.fillStyle = 'black'
+		metrics = font_context.measureText das_text
+		font_canvas.width = metrics.width+padding
+		font_canvas.height = 21 + padding
+
+		font_context.rect 0,0,font_canvas.width,font_canvas.height
+		font_context.stroke()
+
+		font_context.fillStyle = 'red'
+		font_context.font = 'bold 18pt Courier New'
+		font_context.textAlign = 'left'
+		font_context.fillText das_text, padding/2, font_canvas.height-padding/2-4
+
+		image = new Image()
+		image.src = font_canvas.toDataURL('image/url')
+		return image
+
+	add_to_world: (world) ->
+
+		block_width = @img.width
+		block_height = @img.height
+		x_start_pos = Math.random() * (CANVAS_PLAY_WIDTH - block_width)
+		console.log 'x': x_start_pos
+
+		block = Physics.body 'rectangle', 
+			width: block_width
+			height: block_height
+			restitution: 0.95
+			mass: 0.1
+			x: x_start_pos
+			y: 0
+			view: @img
+
+		rotation = (0.5 - Math.random()) * 0.001
+		block.state.angular.acc = rotation
+		block.regex_type = @type
+
+		world.add block
+
+# Matches 0-9
+class Digits extends Block
+	constructor: ->
+		@type = REGEX_TYPE_DIGITS
+		num_digits = Math.floor Math.random() * 10
+		string = ''
+		if num_digits > 0
+			for i in [0..num_digits] by 1
+				val = Math.floor Math.random() * 10
+				string += val.toString()
+		else
+			string = '     '
+		@img = @string_to_image string
+
+# Matches a-z, A-Z, 0-9, including the _ 
+class Letters extends Block
+	constructor: ->
+		@type = REGEX_TYPE_LETTERS
+		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+		num_digits = 1 + Math.floor Math.random() * 9
+		string = ''
+		for i in [0..num_digits] by 1
+
+			val = Math.floor Math.random() * letters.length
+			string += letters.charAt val
+		@img = @string_to_image string
+
+class Backslash extends Block
+	constructor: ->
+		@type = REGEX_TYPE_BACKSLASH
+		string = '\\'
+		@img = @string_to_image string
+
+# Matches 1-3 of a-z, A-Z, 0-9, including the _
+# followed by 1-3 of 0-9 
+class LettersDigits extends Block
+	constructor: ->
+		@type = REGEX_TYPE_LETTERS_DIGITS
+		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+		string = ''
+		num_digits = 1 + Math.floor Math.random() * 2
+		for i in [0..num_digits] by 1
+
+			val = Math.floor Math.random() * letters.length
+			string += letters.charAt val
+
+		num_digits = 1 + Math.floor Math.random() * 2		
+		for i in [0..num_digits] by 1
+			val = Math.floor Math.random() * 10
+			string += val.toString()
+		@img = @string_to_image string
+
 
 add_block = (world) ->
 
-	block_width = 140
-	x_start_pos = Math.random() * (CANVAS_PLAY_WIDTH - block_width)
-	console.log 'x': x_start_pos
+	type = Math.floor Math.random() * 4
+	switch type
+		when 0
+			regex = new Backslash()
+		when 1
+			regex = new Digits()
+		when 2
+			regex = new Letters()
+		else
+			regex = new LettersDigits()
 
-	block = Physics.body 'rectangle', 
-		width: block_width
-		height: 20
-		restitution: 0.95
-		mass: 0.1
-		x: x_start_pos
-		y: 0
-		view: digit_image
-
-	rotation = (0.5 - Math.random()) * 0.002
-	block.state.angular.acc = rotation
-	block.regex_type = REGEX_TYPE_DIGITS
-
-	world.add block
-
-	current_block = block
+	regex.add_to_world world
 
 mouse_2_canvas_coords = (canvas, event) ->
 	cx = 0
@@ -134,7 +225,7 @@ window.onload = ->
 				x: 0
 				y:	0.00002
 
-		bounds = Physics.aabb(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		bounds = Physics.aabb(0, -CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT);
 		world.add Physics.behavior 'edge-collision-detection',
 			aabb: bounds
 			restitution: 0.3
@@ -221,6 +312,7 @@ window.onload = ->
 		canvas.addEventListener "mouseup", mouse_up
 		canvas = document.getElementById CANVAS_NAME
 		canvas.addEventListener "mouseout", mouse_out
+
 
 
 
