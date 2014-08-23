@@ -12,24 +12,26 @@ REGEX_TYPE_LETTERS = 1
 REGEX_TYPE_BACKSLASH = 2
 REGEX_TYPE_LETTERS_DIGITS = 3
 
-current_block = null
+digit_image = new Image()
+digit_image.src = "digits.png"
 
 add_block = (world) ->
 
-	block_width = 50 + Math.random() * (CANVAS_PLAY_WIDTH * 0.25)
+	block_width = 140
 	x_start_pos = Math.random() * (CANVAS_PLAY_WIDTH - block_width)
 	console.log 'x': x_start_pos
 
 	block = Physics.body 'rectangle', 
 		width: block_width
-		height: 15
+		height: 20
 		restitution: 0.95
 		mass: 0.1
 		x: x_start_pos
 		y: 0
+		view: digit_image
 
 	rotation = (0.5 - Math.random()) * 0.002
-	block.state.angular.vel = rotation
+	block.state.angular.acc = rotation
 	block.regex_type = REGEX_TYPE_DIGITS
 
 	world.add block
