@@ -8,11 +8,6 @@ CANVAS_HALF_HEIGHT= CANVAS_HEIGHT/2
 CANVAS_NAME = 'game_canvas'
 SCORE_NAME = 'score'
 
-REGEX_TYPE_DIGITS = 0
-REGEX_TYPE_LETTERS = 1
-REGEX_TYPE_BACKSLASH = 2
-REGEX_TYPE_LETTERS_DIGITS = 3
-
 padding = 8
 font_canvas = document.createElement 'canvas'
 font_context = font_canvas.getContext '2d'
@@ -79,7 +74,6 @@ class Block
 # Matches 0-9
 class Digits extends Block
 	constructor: ->
-		@type = REGEX_TYPE_DIGITS
 		num_digits = Math.floor Math.random() * 10
 		@string = ''
 		if num_digits > 0
@@ -94,7 +88,6 @@ class Digits extends Block
 # Matches a-z, A-Z, 0-9, including the _ 
 class Letters extends Block
 	constructor: ->
-		@type = REGEX_TYPE_LETTERS
 		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
 		num_digits = 1 + Math.floor Math.random() * 9
 		@string = ''
@@ -107,7 +100,6 @@ class Letters extends Block
 # Matches a-z, A-Z, 0-9, including the _ and contains a .
 class LettersDot extends Block
 	constructor: ->
-		@type = REGEX_TYPE_LETTERS
 		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
 		num_digits = 1 + Math.floor Math.random() * 9
 		@string = ''
@@ -121,7 +113,6 @@ class LettersDot extends Block
 
 class Backslash extends Block
 	constructor: ->
-		@type = REGEX_TYPE_BACKSLASH
 		@string = '\\'
 		@img = string_to_image @string, 'red'
 
@@ -129,7 +120,6 @@ class Backslash extends Block
 # followed by 1-3 of 0-9 
 class LettersDigits extends Block
 	constructor: ->
-		@type = REGEX_TYPE_LETTERS_DIGITS
 		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
 		@string = ''
 		num_digits = 1 + Math.floor Math.random() * 2
