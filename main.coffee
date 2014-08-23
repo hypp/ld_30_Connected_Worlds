@@ -63,6 +63,7 @@ window.onload = ->
 			if tracking
 				x = tracking.state.pos.x
 				y = tracking.state.pos.y
+				this.ctx.beginPath()
 				this.ctx.strokeStyle = "yellow"
 				this.ctx.moveTo x,y
 				this.ctx.lineTo mousepos_x,mousepos_y
