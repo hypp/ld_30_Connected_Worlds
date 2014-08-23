@@ -59,7 +59,7 @@ class Block
 			restitution: 0.95
 			mass: 0.1
 			x: x_start_pos
-			y: 0
+			y: -block_height
 			view: @img
 
 		rotation = (0.5 - Math.random()) * 0.001
