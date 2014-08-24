@@ -417,6 +417,8 @@ init = ->
 
 			if hit
 				tracking = hit
+				tracking.oldView = tracking.view
+				tracking.view = null
 
 		mouse_move = (event) ->
 			if not tracking
@@ -461,9 +463,15 @@ init = ->
 						player.add_score -score1 * score2
 						audio_stuff.play_failure()
 
+			if tracking
+				tracking.view = tracking.oldView
+				tracking.oldView = null
 			tracking = false
 
 		mouse_out = (event) ->
+			if tracking
+				tracking.view = tracking.oldView
+				tracking.oldView = null
 			tracking = false
 
 		canvas = document.getElementById CANVAS_NAME
