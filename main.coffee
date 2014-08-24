@@ -180,6 +180,15 @@ class Backslash extends Block
 		@string = '\\'
 		@img = string_to_image @string, 'red'
 
+class Mathias extends Block
+	constructor: ->
+		val = Math.floor Math.random() * 10
+		if val == 0
+			@string = 'Mathias'
+		else
+			@string = 'Mattias'
+		@img = string_to_image @string, 'red'
+
 # Matches 1-3 of a-z, A-Z, 0-9, including the _
 # followed by 1-3 of 0-9 
 class LettersDigits extends Block
@@ -198,6 +207,42 @@ class LettersDigits extends Block
 			@string += val.toString()
 		@img = string_to_image @string, 'red'
 
+class EndsWithzaS extends Block
+	constructor: ->
+		letters = 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!"#€%&()='
+		num_digits = 1 + Math.floor Math.random() * 9
+		@string = ''
+		for i in [0..num_digits] by 1
+
+			val = Math.floor Math.random() * letters.length
+			@string += letters.charAt val
+		@string += 'zaS'
+		@img = string_to_image @string, 'red'
+
+class StartsWithpow extends Block
+	constructor: ->
+		letters = 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!"#€%&()='
+		num_digits = 1 + Math.floor Math.random() * 9
+		@string = 'pow'
+		for i in [0..num_digits] by 1
+
+			val = Math.floor Math.random() * letters.length
+			@string += letters.charAt val
+		@img = string_to_image @string, 'red'
+
+# Contains aa
+class Containsaa extends Block
+	constructor: ->
+		letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!"#€%&()=?/\\@^$'
+		num_digits = 1 + Math.floor Math.random() * 9
+		@string = ''
+		for i in [0..num_digits] by 1
+
+			if i == Math.floor num_digits / 2
+				@string += 'aa'
+			val = Math.floor Math.random() * letters.length
+			@string += letters.charAt val
+		@img = string_to_image @string, 'red'
 
 class GameRegex
 	constructor: (regex) ->
@@ -219,7 +264,7 @@ add_block = (world) ->
 
 	num_blocks += 1
 
-	type = Math.floor Math.random() * 5
+	type = Math.floor Math.random() * 10
 	switch type
 		when 0
 			regex = new Backslash()
@@ -229,6 +274,14 @@ add_block = (world) ->
 			regex = new Letters()
 		when 3
 			regex = new LettersDot()
+		when 4
+			regex = new Mathias()
+		when 5
+			regex = new EndsWithzaS()
+		when 6
+			regex = new StartsWithpow()
+		when 7
+			regex = new Containsaa()
 		else
 			regex = new LettersDigits()
 
