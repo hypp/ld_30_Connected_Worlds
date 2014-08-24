@@ -398,7 +398,7 @@ init = ->
 					y: mousepos_y,									
 				renderer.drawLine tracking.state.pos,dest_pos,styles
 
-			if num_blocks > 60
+			if num_blocks > 40
 				# Game over
 				world.pause()
 				canvas = document.getElementById CANVAS_NAME
