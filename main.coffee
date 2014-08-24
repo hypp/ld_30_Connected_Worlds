@@ -244,6 +244,18 @@ class Containsaa extends Block
 			@string += letters.charAt val
 		@img = string_to_image @string, 'red'
 
+# Just random words
+class Words extends Block
+	constructor: ->
+		words = ['fire','walk','with','me','the','owls','are','not','what','they','seem','to','be','I','will','be','back',
+				 'star','trek','turtle','chaos','engage','Qapla\'','It is alive','Do','ya','feel','lucky?',
+				 'Well','do','ya','punk?','star','wars',
+				 'may','the','force','be','with','you','xkcd','Wax','on','Wax','off','Yippekiyiyay','Hasta','la','vista']
+		word = Math.floor Math.random() * words.length
+		@string = words[word]
+		@img = string_to_image @string, 'red'
+
+
 class GameRegex
 	constructor: (regex) ->
 		@regex_str = regex
@@ -282,6 +294,8 @@ add_block = (world) ->
 			regex = new StartsWithpow()
 		when 7
 			regex = new Containsaa()
+		when 8
+			regex = new Words()			
 		else
 			regex = new LettersDigits()
 
@@ -304,7 +318,7 @@ mouse_2_canvas_coords = (canvas, event) ->
 	return [cx,cy]
 
 
-all_regexes = ['^\\d*$','^\\w+$','^\\\\$','^\\w{1,3}\\d{1,3}$','^Mathias$','zaS$','^pow','aa','^...$','\\.']
+all_regexes = ['^\\d*$','^\\w+$','^\\\\$','^\\w{1,3}\\d{1,3}$','^Mathias$','zaS$','^pow','aa','^...$','\\.','^\\w+\\W$']
 
 generate_regex_menu = (world) ->
 
