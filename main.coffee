@@ -81,6 +81,10 @@ string_to_image = (das_text, color) ->
 	font_canvas.width = metrics.width+padding
 	font_canvas.height = 21 + padding
 
+	font_context.fillStyle = 'white'
+	font_context.fillRect 0,0,font_canvas.width,font_canvas.height
+
+	font_context.fillStyle = 'black'
 	font_context.rect 0,0,font_canvas.width,font_canvas.height
 	font_context.stroke()
 
