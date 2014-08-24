@@ -103,7 +103,7 @@ class Player
 
 	add_score: (more) ->
 		@score += more
-		@score_div.innerHTML = @score.toString() + ' points'
+#		@score_div.innerHTML = @score.toString() + ' points'
 
 class Block
 	constructor: ->
