@@ -36,10 +36,12 @@ class AudioStuff
 			preload: true
 			loop: false
 			autoplay: true
+		music.setVolume 50
 
 		# Try to restart when its done
 		music.bind 'ended', (e) ->
 			music.load().play()
+			music.setVolume 50
 
 	load_success_samples: ->
 		samples_to_load = ['yeah','super', 'give_me_five', 'alright']
