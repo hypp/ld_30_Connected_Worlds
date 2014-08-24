@@ -287,6 +287,26 @@ add_block = (world) ->
 
 	regex.add_to_world world
 
+add_regex_block = (world) ->
+	val = Math.floor Math.random() * all_regexes.length
+	regex_str = all_regexes[val]
+	regex_obj= new GameRegex regex_str
+	height = regex_obj.img.height
+	width = regex_obj.img.width
+	x_start_pos = Math.random() * (CANVAS_PLAY_WIDTH - width)
+
+	regex = Physics.body 'rectangle', 
+			width: width
+			height: height
+			restitution: 0.95
+			mass: 0.1
+			x: x_start_pos
+			y: -height
+			view: regex_obj.img
+	regex.regex = regex_obj
+	world.add regex
+
+
 mouse_2_canvas_coords = (canvas, event) ->
 	cx = 0
 	cy = 0
@@ -320,7 +340,7 @@ generate_regex_menu = (world) ->
 		regex = Physics.body 'rectangle', 
 				width: width
 				height: height
-				treatment: 'static'
+			#	treatment: 'static'
 				x: CANVAS_WIDTH - border - width/2
 				y: current_y + spacing + height/2
 				view: regex_obj.img
@@ -345,8 +365,9 @@ init = ->
 		    #debug: true
 		world.add renderer
 
-		generate_regex_menu world
+	#	generate_regex_menu world
 		add_block(world)
+		add_regex_block(world)
 
 
 
@@ -373,6 +394,7 @@ init = ->
 			if counter > 50*2
 				counter = 0
 				add_block(world)
+				add_regex_block(world)
 
 			world.render()
 			if tracking
@@ -384,7 +406,7 @@ init = ->
 					y: mousepos_y,									
 				renderer.drawLine tracking.state.pos,dest_pos,styles
 
-			if num_blocks > 60
+			if num_blocks > 50/2
 				# Game over
 				world.pause()
 				canvas = document.getElementById CANVAS_NAME
@@ -396,8 +418,7 @@ init = ->
 				font_context.font = 'bold 48pt Courier New'
 				font_context.fillText player.score.toString() + ' points', canvas.width / 2, canvas.height / 2 + 60	
 
-				audio_stuff.play_game_over()			
-
+				audio_stuff.play_game_over()
 
 		Physics.util.ticker.on ( time, dt ) ->
 			world.step(time)
@@ -416,6 +437,8 @@ init = ->
 				$at: pos
 
 			if hit
+				hit.oldView = hit.view
+				hit.view = null
 				tracking = hit
 
 		mouse_move = (event) ->
@@ -439,6 +462,7 @@ init = ->
 						player.add_score hit.regex.score() * tracking.object.score()
 						audio_stuff.play_success()
 						world.remove(tracking)
+						world.remove(hit)
 						num_blocks -= 1
 						console.log 'from msg to regex', tracking.object.string
 					when hit.object? and tracking.regex? and tracking.regex.match(hit.object.string)
@@ -446,6 +470,7 @@ init = ->
 						audio_stuff.play_success()
 						player.add_score hit.object.score() * tracking.regex.score()
 						world.remove(hit)
+						world.remove(tracking)
 						num_blocks -= 1
 						console.log 'from regex to hit'
 					else
@@ -461,9 +486,15 @@ init = ->
 						player.add_score -score1 * score2
 						audio_stuff.play_failure()
 
+			if tracking
+				tracking.view = tracking.oldView
+				tracking.oldView = null
 			tracking = false
 
 		mouse_out = (event) ->
+			if tracking
+				tracking.view = tracking.oldView
+				tracking.oldView = null
 			tracking = false
 
 		canvas = document.getElementById CANVAS_NAME
