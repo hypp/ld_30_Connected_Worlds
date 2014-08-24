@@ -8,6 +8,65 @@ CANVAS_HALF_HEIGHT= CANVAS_HEIGHT/2
 CANVAS_NAME = 'game_canvas'
 SCORE_NAME = 'score'
 
+
+class AudioStuff
+	constructor: ->
+		@success_samples = []
+		@failure_samples = []
+		@game_over_samples = []
+
+		@load_music()
+		@load_success_samples()
+		@load_failure_samples()
+		@load_game_over_sample()
+
+	load_audio_files: (samples_to_load, target) ->
+		for name in samples_to_load
+			sample = new buzz.sound name,
+				formats: [ "ogg", "mp3", "wav" ]
+				preload: true
+				loop: false
+				autoplay: false
+			target.push sample
+
+
+	load_music: ->
+		music = new buzz.sound 'da_regex',
+			formats: [ "ogg", "mp3", "wav" ]
+			preload: true
+			loop: false
+			autoplay: true
+
+		# Try to restart when its done
+		music.bind 'ended', (e) ->
+			music.load().play()
+
+	load_success_samples: ->
+		samples_to_load = ['yeah','super', 'give_me_five', 'alright']
+		@load_audio_files samples_to_load, @success_samples
+
+	load_failure_samples: ->
+		samples_to_load = ['error', 'that_is_not_correct', 'try_again']
+		@load_audio_files samples_to_load, @failure_samples
+
+	load_game_over_sample: ->
+		samples_to_load = ['game_over']
+		@load_audio_files samples_to_load, @game_over_samples
+
+	play_success: ->
+		sample_no = Math.floor Math.random() * @success_samples.length
+		@success_samples[sample_no].load().play()
+
+	play_failure: ->
+		sample_no = Math.floor Math.random() * @failure_samples.length
+		@failure_samples[sample_no].load().play()
+
+	play_game_over: ->
+		sample_no = Math.floor Math.random() * @game_over_samples.length
+		@game_over_samples[sample_no].load().play()
+
+audio_stuff = new AudioStuff()
+
 padding = 8
 font_canvas = document.createElement 'canvas'
 font_context = font_canvas.getContext '2d'
@@ -280,7 +339,9 @@ init = ->
 				font_context.textAlign = 'center'
 				font_context.fillText "Game Over", canvas.width / 2, canvas.height / 2				
 				font_context.font = 'bold 48pt Courier New'
-				font_context.fillText player.score.toString() + ' points', canvas.width / 2, canvas.height / 2 + 60				
+				font_context.fillText player.score.toString() + ' points', canvas.width / 2, canvas.height / 2 + 60	
+
+				audio_stuff.play_game_over()			
 
 
 		Physics.util.ticker.on ( time, dt ) ->
@@ -321,11 +382,13 @@ init = ->
 					when hit.regex? and tracking.object? and hit.regex.match(tracking.object.string)
 						# Got a match, increase player score and remove block
 						player.add_score hit.regex.score() * tracking.object.score()
+						audio_stuff.play_success()
 						world.remove(tracking)
 						num_blocks -= 1
 						console.log 'from msg to regex', tracking.object.string
 					when hit.object? and tracking.regex? and tracking.regex.match(hit.object.string)
 						# Got a match, increase player score and remove block
+						audio_stuff.play_success()
 						player.add_score hit.object.score() * tracking.regex.score()
 						world.remove(hit)
 						num_blocks -= 1
@@ -341,6 +404,7 @@ init = ->
 						else
 							score2 = tracking.regex.score()
 						player.add_score -score1 * score2
+						audio_stuff.play_failure()
 
 			tracking = false
 
